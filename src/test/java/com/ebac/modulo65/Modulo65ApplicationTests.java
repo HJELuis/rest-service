@@ -1,10 +1,10 @@
-package com.ebac.modulo39;
+package com.ebac.modulo65;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class Modulo39ApplicationTests {
+class Modulo65ApplicationTests {
 
 	@Test
 	void contextLoads() {

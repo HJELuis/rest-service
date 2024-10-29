@@ -1,13 +1,12 @@
-package com.ebac.modulo39;
+package com.ebac.modulo65;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class Modulo39Application {
+public class Modulo65Application {
 
 	public static void main(String[] args) {
-		SpringApplication.run(Modulo39Application.class, args);
+		SpringApplication.run(Modulo65Application.class, args);
 	}
-
 }
