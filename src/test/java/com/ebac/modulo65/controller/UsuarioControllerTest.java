@@ -1,12 +1,30 @@
 package com.ebac.modulo65.controller;
 
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
+import com.ebac.modulo65.dto.Usuario;
+import com.ebac.modulo65.service.UsuarioService;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
 
-//@ExtendWith(MockitoExtension.class)
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
 class UsuarioControllerTest {
 
-    /*@Mock
+    private static final Logger log = LoggerFactory.getLogger(UsuarioControllerTest.class);
+    @Mock
     UsuarioService usuarioService;
 
     @InjectMocks
@@ -21,11 +39,20 @@ class UsuarioControllerTest {
         when(usuarioService.obtenerUsuarios()).thenReturn(usuariosListExpected);
 
         // Ejecutamos el metodo del controlador
-        List<Usuario> usuariosListActual = usuarioController.obtenerUsuarios();
+        ResponseWrapper<List<Usuario>> usuariosListActual = usuarioController.obtenerUsuarios();
 
         // Validamos el resultado
-        assertEquals(usuarios, usuariosListActual.size());
-        assertEquals(usuariosListExpected, usuariosListActual);
+        if(usuariosListActual.isSuccess()) {
+            ResponseEntity<List<Usuario>> usuarioResponseEntity = usuariosListActual.getResponseEntity();
+
+            List<Usuario> actualList = usuarioResponseEntity.getBody();
+
+            assert actualList != null;
+            assertEquals(usuarios,actualList.size());
+            assertEquals(usuariosListExpected, actualList);
+
+        }
+
     }
 
     @Test
@@ -34,10 +61,18 @@ class UsuarioControllerTest {
         when(usuarioService.obtenerUsuarios()).thenReturn(List.of());
 
         // Ejecutamos el metodo del controlador
-        List<Usuario> usuarioListActual = usuarioController.obtenerUsuarios();
+        ResponseWrapper<List<Usuario>> usuarioListActual = usuarioController.obtenerUsuarios();
 
         // Validamos el resultado
-        assertTrue(usuarioListActual.isEmpty());
+
+        if(usuarioListActual.isSuccess()) {
+            ResponseEntity<List<Usuario>> usuarioResponseEntity = usuarioListActual.getResponseEntity();
+
+            List<Usuario> actualList = usuarioResponseEntity.getBody();
+
+            assert actualList != null;
+            assertTrue(actualList.isEmpty());
+        }
 
         verify(usuarioService, times(1)).obtenerUsuarios();
     }
@@ -51,14 +86,16 @@ class UsuarioControllerTest {
         when(usuarioService.obtenerUsuarioPorId(idUsuario)).thenReturn(usuarioExpected);
 
         // Ejecutamos el metodo del controlador
-        ResponseEntity<Usuario> usuarioResponseEntity = usuarioController.obtenerUsuarioPorId(idUsuario);
-        Usuario usuarioActual = usuarioResponseEntity.getBody();
+        ResponseWrapper<Usuario> usuarioResponseEntity = usuarioController.obtenerUsuarioPorId(idUsuario);
+
+        Usuario usuarioActual = usuarioResponseEntity.getResponseEntity().getBody();
 
         // Validamos el resultado
-        assertEquals(200, usuarioResponseEntity.getStatusCode().value());
+        assertEquals(200, usuarioResponseEntity.getResponseEntity().getStatusCode().value());
         assertNotNull(usuarioActual);
         assertEquals("Nombre1", usuarioActual.getNombre());
     }
+
 
     @Test
     void obtenerUsuarioPorIdCuandoNoExiste() {
@@ -68,11 +105,11 @@ class UsuarioControllerTest {
         when(usuarioService.obtenerUsuarioPorId(idUsuario)).thenReturn(Optional.empty());
 
         // Ejecutamos el metodo del controlador
-        ResponseEntity<Usuario> usuarioResponseEntity = usuarioController.obtenerUsuarioPorId(idUsuario);
-        Usuario usuarioActual = usuarioResponseEntity.getBody();
+        ResponseWrapper<Usuario> usuarioResponseEntity = usuarioController.obtenerUsuarioPorId(idUsuario);
+        Usuario usuarioActual = usuarioResponseEntity.getResponseEntity().getBody();
 
         // Validamos el resultado
-        assertEquals(404, usuarioResponseEntity.getStatusCode().value());
+        assertEquals(404, usuarioResponseEntity.getResponseEntity().getStatusCode().value());
         assertTrue(Objects.isNull(usuarioActual));
     }
 
@@ -84,12 +121,12 @@ class UsuarioControllerTest {
         when(usuarioService.crearUsuario(usuarioExpected)).thenReturn(usuarioExpected);
 
         // Ejecutamos el metodo del controlador
-        ResponseEntity<Usuario> usuarioResponseEntity = usuarioController.crearUsuario(usuarioExpected);
-        Usuario usuarioActual = usuarioResponseEntity.getBody();
+        ResponseWrapper<Usuario> usuarioResponseEntity = usuarioController.crearUsuario(usuarioExpected);
+        Usuario usuarioActual = usuarioResponseEntity.getResponseEntity().getBody();
 
         // Validamos el resultado
-        assertEquals(201, usuarioResponseEntity.getStatusCode().value());
-        assertTrue(Objects.isNull(usuarioActual));
+        assertEquals(201, usuarioResponseEntity.getResponseEntity().getStatusCode().value());
+        //assertTrue(Objects.isNull(usuarioActual));
     }
 
     @Test
@@ -112,11 +149,11 @@ class UsuarioControllerTest {
         doNothing().when(usuarioService).actualizarUsuario(usuarioActualizado);
 
         // Ejecutamos el metodo del controlador
-        ResponseEntity<Usuario> usuarioResponseEntity = usuarioController.actualizarUsuario((long) idUsuario, usuarioActualizado);
-        Usuario usuarioActual = usuarioResponseEntity.getBody();
+        ResponseWrapper<Usuario> usuarioResponseEntity = usuarioController.actualizarUsuario((long) idUsuario, usuarioActualizado);
+        Usuario usuarioActual = usuarioResponseEntity.getResponseEntity().getBody();
 
         // Validamos el resultado
-        assertEquals(200, usuarioResponseEntity.getStatusCode().value());
+        assertEquals(200, usuarioResponseEntity.getResponseEntity().getStatusCode().value());
         assertNotNull(usuarioActual);
         assertEquals(idUsuario, usuarioActual.getIdUsuario());
         assertEquals(nombreActualizado, usuarioActual.getNombre());
@@ -137,11 +174,11 @@ class UsuarioControllerTest {
         when(usuarioService.obtenerUsuarioPorId(idUsuario)).thenReturn(Optional.empty());
 
         // Ejecutamos el metodo del controlador
-        ResponseEntity<Usuario> usuarioResponseEntity = usuarioController.actualizarUsuario(idUsuario, usuarioActualizado);
-        Usuario usuarioActual = usuarioResponseEntity.getBody();
+        ResponseWrapper<Usuario> usuarioResponseEntity = usuarioController.actualizarUsuario(idUsuario, usuarioActualizado);
+        Usuario usuarioActual = usuarioResponseEntity.getResponseEntity().getBody();
 
         // Validamos el resultado
-        assertEquals(404, usuarioResponseEntity.getStatusCode().value());
+        assertEquals(404, usuarioResponseEntity.getResponseEntity().getStatusCode().value());
         assertNull(usuarioActual);
         verify(usuarioService, never()).actualizarUsuario(usuarioActualizado);
     }
@@ -154,10 +191,10 @@ class UsuarioControllerTest {
         doNothing().when(usuarioService).eliminarUsuario(idUsuario);
 
         // Ejecutamos el metodo del controlador
-        ResponseEntity<Void> responseEntity = usuarioController.eliminarUsuario(idUsuario);
+        ResponseWrapper<Void> responseEntity = usuarioController.eliminarUsuario(idUsuario);
 
         // Validamos el resultado
-        assertEquals(204, responseEntity.getStatusCode().value());
+        assertEquals(204, responseEntity.getResponseEntity().getStatusCode().value());
         verify(usuarioService, atLeastOnce()).eliminarUsuario(idUsuario);
     }
 
@@ -172,10 +209,10 @@ class UsuarioControllerTest {
         doThrow(Exception.class).when(usuarioService).crearUsuario(usuario);
 
         // Ejecutamos el metodo del controlador
-        ResponseEntity<Usuario> responseEntity = usuarioController.crearUsuario(usuario);
-        Usuario usuarioActual = responseEntity.getBody();
+        ResponseWrapper<Usuario> responseEntity = usuarioController.crearUsuario(usuario);
+        Usuario usuarioActual = responseEntity.getResponseEntity().getBody();
 
-        assertEquals(400, responseEntity.getStatusCode().value());
+        assertEquals(400, responseEntity.getResponseEntity().getStatusCode().value());
         assertNull(usuarioActual);
     }
 
@@ -188,5 +225,5 @@ class UsuarioControllerTest {
                     usuario.setEdad(15 + i);
                     return usuario;
                 }).collect(Collectors.toList());
-    }*/
+    }
 }

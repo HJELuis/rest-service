@@ -41,22 +41,26 @@ public class UsuarioController {
         // Devuelve un objeto User que se convertirá automáticamente en JSON/XML en la respuesta.
         Optional<Usuario> usuarioOptional = usuarioService.obtenerUsuarioPorId(id);
 
-        if (usuarioOptional.isPresent()) {
-            //success
-        } else {
-            //fail
-        }
-
         log.info("Obteniendo usuario por id {}", id);
         ResponseEntity<Usuario> usuarioResponseEntity =
                 usuarioOptional.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
-        return new ResponseWrapper<>(true, "Informacion del usuario " + id, usuarioResponseEntity);
+
+        boolean success = false;
+
+        if (usuarioOptional.isPresent()) {
+            //success
+            success = true;
+        }
+
+        return new ResponseWrapper<>(success, "Informacion del usuario " + id, usuarioResponseEntity);
     }
 
     @PostMapping("/usuarios")
     public ResponseWrapper<Usuario> crearUsuario(@RequestBody Usuario usuario) {
         // Lógica para crear un nuevo usuario
         // Retorna ResponseEntity con el objeto User en el cuerpo y un código de estado 201 (CREATED) en la respuesta.
+
+        log.info("Creando usuario");
         try {
             Usuario usuarioCreado = usuarioService.crearUsuario(usuario);
             ResponseEntity<Usuario> responseEntity = ResponseEntity.created(new URI("http://localhost/usuarios")).body(usuarioCreado);
@@ -71,6 +75,7 @@ public class UsuarioController {
     public ResponseWrapper<Usuario> actualizarUsuario(@PathVariable Long id, @RequestBody Usuario usuarioActualizado) {
         // Lógica para actualizar el usuario con el ID proporcionado
         // Retorna ResponseEntity con el objeto User actualizado en el cuerpo y un código de estado 200 (OK) en la respuesta.
+        log.info("Actualizando usuario");
         Optional<Usuario> usuarioOptional = usuarioService.obtenerUsuarioPorId(id);
 
         if (usuarioOptional.isPresent()) {
@@ -89,6 +94,7 @@ public class UsuarioController {
     public ResponseWrapper<Void> eliminarUsuario(@PathVariable Long id) {
         // Lógica para eliminar el usuario con el ID proporcionado
         // Retorna ResponseEntity con un código de estado 204 (NO_CONTENT) en la respuesta.
+        log.info("Eliminando usuario");
         usuarioService.eliminarUsuario(id);
 
         ResponseEntity<Void> responseEntity = ResponseEntity.noContent().build();
